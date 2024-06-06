@@ -1,8 +1,8 @@
 This code is for zen cart 1.58A with php 8.1. FIles are based on zen cart 2.01. 
 
-ipn_main_handler.php no changes. <br>
-paypaldp.php some changes<br>
-paypalwpp.php some changes
+ipn_main_handler.php no changes, based on file version 2.0.0rc <br>
+paypaldp.php some changes, based on file version 2.0.1 <br>
+paypalwpp.php some changes, based on file version 2.0.1
 
 Some key notes:
 
