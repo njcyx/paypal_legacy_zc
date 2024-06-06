@@ -372,7 +372,7 @@ class paypaldp extends base {
       require_once DIR_FS_CATALOG . DIR_WS_MODULES . 'payment/paypal/paypal_currency_check.php';
       if (paypalUSDCheck($order->info['total']) === false) {
         $this->enabled = false;
-        $this->zcLog('update_status', 'Module disabled because purchase price (' . $order->info['total'] . ') exceeds PayPal-imposed maximum limit of 10,000 USD.');
+        $this->zcLog('update_status', 'Module disabled because purchase price (' . $order_amount . ') exceeds PayPal-imposed maximum limit of 10,000 USD.');
       }
       if ($order->info['total'] == 0) {
         $this->enabled = false;
@@ -998,7 +998,8 @@ class paypaldp extends base {
         $this->correlationid = $response['CORRELATIONID'];
         $this->payment_time = urldecode($response['TIMESTAMP']);
         $this->amt = urldecode($response['AMT'] . ' ' . $response['CURRENCYCODE']);
-        $this->auth_code = $this->responsedata['AUTHCODE'] ?? ($this->responsedata['TOKEN'] ?? 'n/a');
+        //$this->auth_code = $this->responsedata['AUTHCODE'] ?? ($this->responsedata['TOKEN'] ?? 'n/a');
+         $this->auth_code = $this->responsedata['AUTHCODE'] ?? ($this->responsedata['TOKEN'] ?? '');
         $this->transactiontype = 'cart';
       }
   }
@@ -1059,7 +1060,7 @@ class paypaldp extends base {
                           'payer_email' => $_SESSION['paypal_ec_payer_info']['payer_email'] ?? '',
                           'payer_id' => $_SESSION['paypal_ec_payer_id'] ?? '',
                           'payer_status' => $_SESSION['paypal_ec_payer_info']['payer_status'] ?? '',
-                          'payment_date' => convertToLocalTimeZone(trim(preg_replace('/[^0-9-:]/', ' ', $this->payment_time))),
+                          'payment_date' => trim(preg_replace('/[^0-9-:]/', ' ', $this->payment_time)),
                           'business' => '',
                           'receiver_email' => (MODULE_PAYMENT_PAYPALWPP_PFVENDOR != '' ? MODULE_PAYMENT_PAYPALWPP_PFVENDOR : str_replace('_api1', '', MODULE_PAYMENT_PAYPALWPP_APIUSERNAME)),
                           'receiver_id' => '',
