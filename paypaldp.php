@@ -6,7 +6,8 @@
  * @copyright Portions Copyright 2005 CardinalCommerce
  * @copyright Portions Copyright 2003 osCommerce
  * @license http://www.zen-cart.com/license/2_0.txt GNU Public License V2.0
- * @version $Id: Scott C Wilson 2024 Apr 25 Modified in v2.0.1 $
+ * @version $Id: Scott C Wilson 2024 Apr 25 Modified in v2.0.1 $ 
+ * Mod based on the file above. master category. https://github.com/scottcwilson/zencart/blob/master/includes/modules/payment/paypaldp.php
  */
 /**
  * The transaction URL for the Cardinal Centinel 3D-Secure service.
@@ -997,9 +998,10 @@ class paypaldp extends base {
         $this->cvv2 = $response['CVV2MATCH'] ?? '';
         $this->correlationid = $response['CORRELATIONID'];
         $this->payment_time = urldecode($response['TIMESTAMP']);
-        $this->amt = urldecode($response['AMT'] . ' ' . $response['CURRENCYCODE']);
-        //$this->auth_code = $this->responsedata['AUTHCODE'] ?? ($this->responsedata['TOKEN'] ?? 'n/a');
-         $this->auth_code = $this->responsedata['AUTHCODE'] ?? ($this->responsedata['TOKEN'] ?? '');
+        $this->amt = urldecode($response['AMT'] . ' ' . $response['CURRENCYCODE']);        
+        $this->auth_code = $this->responsedata['AUTHCODE'] ?? ($this->responsedata['TOKEN'] ?? '');  
+        //$this->auth_code = $this->responsedata['AUTHCODE'] ?? ($this->responsedata['TOKEN'] ?? 'n/a'); //2.01 version
+        //$this->auth_code = (isset($this->response['AUTHCODE'])) ? $this->response['AUTHCODE'] : $this->response['TOKEN'];//1.57d version
         $this->transactiontype = 'cart';
       }
   }
@@ -1060,6 +1062,7 @@ class paypaldp extends base {
                           'payer_email' => $_SESSION['paypal_ec_payer_info']['payer_email'] ?? '',
                           'payer_id' => $_SESSION['paypal_ec_payer_id'] ?? '',
                           'payer_status' => $_SESSION['paypal_ec_payer_info']['payer_status'] ?? '',
+                         // 'payment_date' => convertToLocalTimeZone(trim(preg_replace('/[^0-9-:]/', ' ', $this->payment_time))),
                           'payment_date' => trim(preg_replace('/[^0-9-:]/', ' ', $this->payment_time)),
                           'business' => '',
                           'receiver_email' => (MODULE_PAYMENT_PAYPALWPP_PFVENDOR != '' ? MODULE_PAYMENT_PAYPALWPP_PFVENDOR : str_replace('_api1', '', MODULE_PAYMENT_PAYPALWPP_APIUSERNAME)),
@@ -1983,7 +1986,8 @@ class paypaldp extends base {
            ((isset($_SESSION['paypal_ec_token']) && isset($response['TOKEN'])) && $_SESSION['paypal_ec_token'] != urldecode($response['TOKEN'])) ) {
             // Error, so send the store owner a complete dump of the transaction.
           if ($this->enableDebugging) {
-            $this->_doDebug('PayPal Error Log - before_process() - DP', "In function: before_process() - Direct Payment \r\nDid first contact attempt return error? " . ($error_occurred ? "Yes" : "No") . " \r\n\r\nValue List:\r\n" . str_replace('&',"\r\n", urldecode($doPayPal->_sanitizeLog($doPayPal->_parseNameValueList($doPayPal->lastParamList)))) . "\r\n\r\nResponse:\r\n" . urldecode(print_r($response, true)));
+        //    $this->_doDebug('PayPal Error Log - before_process() - DP', "In function: before_process() - Direct Payment \r\nDid first contact attempt return error? " . ($error_occurred ? "Yes" : "No") . " \r\n\r\nValue List:\r\n" . str_replace('&',"\r\n", urldecode($doPayPal->_sanitizeLog($doPayPal->_parseNameValueList($doPayPal->lastParamList)))) . "\r\n\r\nResponse:\r\n" . urldecode(print_r($response, true)));
+            $this->_doDebug('PayPal Error Log - before_process() - DP', "In function: before_process() - Direct Payment \r\n\r\nValue List:\r\n" . str_replace('&',"\r\n", urldecode($doPayPal->_sanitizeLog($doPayPal->_parseNameValueList($doPayPal->lastParamList)))) . "\r\n\r\nResponse:\r\n" . urldecode(print_r($response, true)));
           }
           $errorText = MODULE_PAYMENT_PAYPALDP_INVALID_RESPONSE;
           $errorNum = urldecode($response['L_ERRORCODE0'] . ' ' . ($response['RESULT'] ?? '') . ' <!-- ' . ($response['RESPMSG'] ?? '') . ' -->');
